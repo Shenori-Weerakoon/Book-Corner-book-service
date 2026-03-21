@@ -86,6 +86,40 @@ const updateBook = async (req, res) => {
   }
 };
 
+//Stock decrease for new orders
+const decreaseStock = async (req, res) => {
+  try {
+    const { quantity } = req.body;
+
+    if (!quantity || quantity <= 0) {
+      return res.status(400).json({ message: 'Quantity must be greater than 0' });
+    }
+
+    const book = await Book.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        stock: { $gte: quantity }
+      },
+      {
+        $inc: { stock: -quantity }
+      },
+      {
+        new: true
+      }
+    );
+
+    if (!book) {
+      return res.status(400).json({
+        message: 'Book not found or insufficient stock'
+      });
+    }
+
+    res.json(formatBook(book));
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to decrease stock', error: error.message });
+  }
+};
+
 // Delete book
 const deleteBook = async (req, res) => {
   try {
@@ -106,5 +140,6 @@ module.exports = {
   getBookById,
   addBook,
   updateBook,
+  decreaseStock,
   deleteBook
 };
