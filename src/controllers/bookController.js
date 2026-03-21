@@ -1,48 +1,104 @@
 const Book = require('../models/book');
 
+// helper function to format DB document for frontend
+const formatBook = (book) => ({
+  id: book._id.toString(),
+  title: book.title,
+  author: book.author,
+  price: book.price,
+  category: book.category,
+  description: book.description,
+  imageUrl: book.imageUrl,
+  stock: book.stock
+});
+
 // Get all books
 const getAllBooks = async (req, res) => {
-  const books = await Book.find();
-  res.json(books);
+  try {
+    const books = await Book.find();
+    res.json(books.map(formatBook));
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch books', error: error.message });
+  }
 };
 
 // Get book by ID
 const getBookById = async (req, res) => {
-  const book = await Book.findById(req.params.id);
-  if (!book) return res.status(404).json({ message: 'Book not found' });
-  res.json(book);
+  try {
+    const book = await Book.findById(req.params.id);
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+    res.json(formatBook(book));
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to fetch book', error: error.message });
+  }
 };
 
 // Add new book
 const addBook = async (req, res) => {
-  const { title, stock } = req.body;
+  try {
+    const { title, author, price, category, description, imageUrl, stock } = req.body;
 
-  const newBook = new Book({ title, stock });
-  await newBook.save();
+    const newBook = new Book({
+      title,
+      author,
+      price,
+      category,
+      description,
+      imageUrl,
+      stock
+    });
 
-  res.status(201).json(newBook);
+    await newBook.save();
+    res.status(201).json(formatBook(newBook));
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to add book', error: error.message });
+  }
 };
 
 // Update book
 const updateBook = async (req, res) => {
-  const book = await Book.findByIdAndUpdate(
-    req.params.id,
-    req.body,
-    { new: true }
-  );
+  try {
+    const { title, author, price, category, description, imageUrl, stock } = req.body;
 
-  if (!book) return res.status(404).json({ message: 'Book not found' });
+    const book = await Book.findByIdAndUpdate(
+      req.params.id,
+      {
+        title,
+        author,
+        price,
+        category,
+        description,
+        imageUrl,
+        stock
+      },
+      { new: true, runValidators: true }
+    );
 
-  res.json(book);
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
+
+    res.json(formatBook(book));
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to update book', error: error.message });
+  }
 };
 
 // Delete book
 const deleteBook = async (req, res) => {
-  const book = await Book.findByIdAndDelete(req.params.id);
+  try {
+    const book = await Book.findByIdAndDelete(req.params.id);
 
-  if (!book) return res.status(404).json({ message: 'Book not found' });
+    if (!book) {
+      return res.status(404).json({ message: 'Book not found' });
+    }
 
-  res.json({ message: 'Book deleted' });
+    res.json({ message: 'Book deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to delete book', error: error.message });
+  }
 };
 
 module.exports = {
