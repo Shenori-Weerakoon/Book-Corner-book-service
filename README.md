@@ -54,7 +54,7 @@ src/
 ### 1️⃣ Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/book-service.git
+git clone https://github.com/Shenori-Weerakoon/Book-Corner-book-service.git
 cd book-service
 ```
 
