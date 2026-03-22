@@ -40,6 +40,12 @@ const addBook = async (req, res) => {
   try {
     const { title, author, price, category, description, imageUrl, stock } = req.body;
 
+    if (!title || !author || price <= 0 || stock < 0) {
+      return res.status(400).json({
+        message: "Invalid input data"
+      });
+    }
+
     const newBook = new Book({
       title,
       author,
@@ -61,6 +67,12 @@ const addBook = async (req, res) => {
 const updateBook = async (req, res) => {
   try {
     const { title, author, price, category, description, imageUrl, stock } = req.body;
+
+    if (!title || !author || price <= 0 || stock < 0) {
+      return res.status(400).json({
+        message: "Invalid input data"
+      });
+    }
 
     const book = await Book.findByIdAndUpdate(
       req.params.id,
