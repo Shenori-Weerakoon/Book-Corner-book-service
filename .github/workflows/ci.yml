@@ -5,8 +5,20 @@ on:
     branches: [ "main" ]
 
 jobs:
-  build-and-push:
 
+  sonarcloud:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0  # Important for SonarCloud to see history
+      - name: SonarCloud Scan
+        uses: sonarsource/sonarcloud-github-action@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
